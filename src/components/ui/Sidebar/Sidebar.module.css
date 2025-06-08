@@ -1,0 +1,224 @@
+/* Botón hamburguesa - oculto en desktop */
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: var(--spacing-md);
+  left: var(--spacing-md);
+  z-index: 1001;
+  background: var(--color-primary);
+  border: none;
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm);
+  cursor: pointer;
+  flex-direction: column;
+  gap: 3px;
+  width: 40px;
+  height: 40px;
+  justify-content: center;
+  align-items: center;
+}
+
+.sidebar-toggle span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: white;
+  border-radius: 1px;
+  transition: all var(--transition-normal) ease;
+}
+
+/* Overlay para móvil */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  transition: opacity var(--transition-normal) ease;
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+}
+
+/* Sidebar principal */
+.sidebar {
+  width: 280px;
+  background: var(--color-bg-primary);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Header del sidebar */
+.sidebar-header {
+  padding: var(--spacing-xl) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border-light);
+  background: var(--color-bg-primary);
+}
+
+.sidebar-title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0;
+}
+
+/* Navegación */
+.sidebar-nav {
+  flex: 1;
+  padding: var(--spacing-lg) 0;
+  overflow-y: auto;
+}
+
+.sidebar-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar-menu-item {
+  margin-bottom: var(--spacing-xs);
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-fast) ease;
+  border-radius: 0;
+  position: relative;
+}
+
+.sidebar-link:hover {
+  background: var(--color-bg-light);
+}
+
+.sidebar-link.active {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.sidebar-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 3px;
+  background: var(--color-primary);
+}
+
+.sidebar-icon {
+  font-size: var(--font-size-lg);
+  margin-right: var(--spacing-md);
+  width: 24px;
+  text-align: center;
+}
+
+.sidebar-text {
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.sidebar-link.active .sidebar-text {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* Footer del sidebar */
+.sidebar-footer {
+  padding: var(--spacing-lg);
+  border-top: 1px solid var(--color-border-light);
+  background: var(--color-bg-secondary);
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.sidebar-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+}
+
+.sidebar-user-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.sidebar-user-name {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+
+.sidebar-user-email {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  line-height: 1.2;
+}
+
+/* Responsive - Tablet y móvil */
+@media (max-width: 768px) {
+  .sidebar-toggle {
+    display: flex;
+  }
+
+  .sidebar-overlay {
+    display: block;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    height: 100vh;
+    z-index: 1000;
+    transition: left var(--transition-normal) ease;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  .sidebar-header {
+    padding-top: calc(var(--spacing-xl) + 60px);
+  }
+}
+
+/* Responsive - Móvil pequeño */
+@media (max-width: 480px) {
+  .sidebar {
+    width: 100vw;
+    left: -100vw;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+}

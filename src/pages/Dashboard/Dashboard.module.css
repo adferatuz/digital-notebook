@@ -1,0 +1,12 @@
+.dashboard {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-bg-secondary);
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+  .dashboard {
+    flex-direction: column;
+  }
+}
