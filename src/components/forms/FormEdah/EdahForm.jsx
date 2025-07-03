@@ -15,20 +15,17 @@ const EdahForm = () => {
     updateStudentInfo,
     calculateScores,
     getInterpretation,
-    isFormComplete,
     resetForm,
     generateReport
   } = useEdahForm();
 
   const [currentStep, setCurrentStep] = useState('info'); // 'info', 'questions', 'results'
-  const [showResults, setShowResults] = useState(false);
 
   const handleNext = () => {
     if (currentStep === 'info') {
       setCurrentStep('questions');
     } else if (currentStep === 'questions') {
       setCurrentStep('results');
-      setShowResults(true);
     }
   };
 
@@ -37,7 +34,6 @@ const EdahForm = () => {
       setCurrentStep('info');
     } else if (currentStep === 'results') {
       setCurrentStep('questions');
-      setShowResults(false);
     }
   };
 
@@ -51,7 +47,6 @@ const EdahForm = () => {
   const handleReset = () => {
     resetForm();
     setCurrentStep('info');
-    setShowResults(false);
   };
 
   const renderStudentInfo = () => (
