@@ -13,7 +13,7 @@ import TextArea from '../../ui/TextArea';
 import Checkbox from '../../ui/Checkbox';
 import Button from '../../ui/Button';
 
-import styles from './DigitalNotebookForm.module.css';
+import styles from './DigitalNoteBookForm.module.css';
 
 const DigitalNotebookForm = ({ onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);

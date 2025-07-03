@@ -1,14 +1,15 @@
+import { useState } from 'react';
 import Sidebar from '../../components/ui/Sidebar/Sidebar';
 import MainContent from '../../components/ui/MainContent/MainContent';
-import './Dashboard.module.css';
-import EdahForm from '../../components/forms/FormEdah/EdahForm';
+import styles from './Dashboard.module.css';
 
 const Dashboard = () => {
+  const [activeView, setActiveView] = useState(null);
+
   return (
-    <div className="dashboard">
-      {/* <Sidebar />
-      <MainContent /> */}
-      <EdahForm />
+    <div className={styles.dashboard}>
+      <Sidebar setActiveView={setActiveView} />
+      <MainContent activeView={activeView} />
     </div>
   );
 };

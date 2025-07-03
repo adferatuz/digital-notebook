@@ -1,4 +1,4 @@
-import DigitalNotebookForm from '../../components/forms/DigitalNotebookForm';
+import DigitalNotebookForm from '../../components/forms/DigitalNoteBookForm/DigitalNoteBookForm';
 import styles from './DigitalNotebook.module.css';
 
 const DigitalNotebook = () => {
