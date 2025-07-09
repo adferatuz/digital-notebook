@@ -33,8 +33,9 @@ La base del sistema será una base de datos PostgreSQL relacional, elegida por s
         *   `id` (BIGINT, Primary Key, Autoincremental)
         *   `form_data` (JSONB, No nulo) - Almacena todas las respuestas del formulario en formato JSON.
         *   `filled_by_credential` (TEXT, No nulo) - La credencial específica usada para llenar el formulario.
-        *   `created_at` (TIMESTAMPTZ, Default: `now()`)
-        *   `test_session_id` (BIGINT, **Foreign Key** a `test_sessions.id`) - **Relación clave** que vincula cada formulario a una sesión de prueba.
+            *   `filled_by_role` (TEXT, No nulo) - Rol del tutor que llenó el formulario (ej: 'TUTOR_A', 'TUTOR_B').
+            *   `created_at` (TIMESTAMPTZ, Default: `now()`)
+            *   `test_session_id` (BIGINT, **Foreign Key** a `test_sessions.id`) - **Relación clave** que vincula cada formulario a una sesión de prueba.
 
 ---
 
@@ -67,7 +68,7 @@ Se implementará un patrón de separación de responsabilidades para mantener el
 
 1.  **Autenticación:** La psicóloga inicia sesión a través de Supabase Auth, obteniendo un token JWT que se usará para autorizar todas las acciones posteriores.
 2.  **Generación de Pruebas:** Al generar credenciales, se crea una nueva fila en `test_sessions`, vinculada al `user_id` de la psicóloga.
-3.  **Llenado de Formularios:** Un tutor usa una credencial para acceder y llenar un formulario. Al enviarlo, se crea una nueva fila en `edah_forms`, vinculada al `test_session_id` correspondiente.
+3.  **Llenado de Formularios:** Un tutor accede al formulario utilizando el `test_id` de la prueba y una de las credenciales asignadas (`credential_tutor_a` o `credential_tutor_b`). Al enviar el formulario, se crea una nueva fila en `edah_forms`, vinculada al `test_session_id` correspondiente y registrando la credencial y el rol del tutor que lo llenó.
 4.  **Visualización de Resultados:**
     *   La psicóloga, autenticada, accede a una vista de "Resultados".
     *   Se realiza una consulta a Supabase que pide una `test_session` específica y, gracias a la relación, pide **unir y traer todos los `edah_forms` asociados**.
