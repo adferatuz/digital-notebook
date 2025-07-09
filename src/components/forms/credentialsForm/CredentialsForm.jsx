@@ -4,14 +4,34 @@ import Button from "../../ui/Button/Button";
 import Checkbox from "../../ui/Checkbox/Checkbox";
 import Input from "../../ui/Input/Input";
 import { useForm } from "../../../hooks/useForm";
-import { 
-  FORM_FIELDS, 
-  VALIDATION_RULES, 
-  INITIAL_VALUES, 
-  handleFormSubmission 
-} from "./CredentialsForm.logic";
+// import { 
+//   FORM_FIELDS, 
+//   VALIDATION_RULES, 
+//   INITIAL_VALUES, 
+//   handleFormSubmission 
+// } from "./CredentialsForm.logic";
 
 import styles from "./CredentialsForm.module.css";
+
+// --- Temporary constants until a proper hook is created ---
+const FORM_FIELDS = {
+    EMAIL: 'email',
+    TOKEN_ACCESS: 'token_access',
+    TERMS: 'terms',
+};
+
+const INITIAL_VALUES = {
+    [FORM_FIELDS.EMAIL]: '',
+    [FORM_FIELDS.TOKEN_ACCESS]: '',
+    [FORM_FIELDS.TERMS]: false,
+};
+
+const VALIDATION_RULES = {
+    [FORM_FIELDS.EMAIL]: { required: true, isEmail: true },
+    [FORM_FIELDS.TOKEN_ACCESS]: { required: true },
+    [FORM_FIELDS.TERMS]: { required: true },
+};
+// --- End of temporary constants ---
 
 const CredentialsForm = ({onClose}) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,26 +50,19 @@ const CredentialsForm = ({onClose}) => {
         e.preventDefault();
 
         if (!validateForm()) {
+            setSubmitMessage('Por favor, corrige los errores.');
             return;
         }
 
         setIsSubmitting(true);
-        setSubmitMessage('');
+        setSubmitMessage('Simulando validación...');
+        console.log("Form values submitted:", values);
 
-        try {
-            const result = await handleFormSubmission(values);
-
-            if (result.success) {
-                setSubmitMessage('¡Formulario enviado correctamente!');
-                resetForm();
-            } else {
-                setSubmitMessage('Error al enviar el formulario. Inténtalo de nuevo.');
-            }
-        } catch (error) {
-            setSubmitMessage(`Error inesperado. Inténtalo de nuevo. ${error.message}`);
-        } finally {
+        // Mock submission logic
+        setTimeout(() => {
+            setSubmitMessage('¡Credenciales validadas correctamente! (simulado)');
             setIsSubmitting(false);
-        }
+        }, 1500);
     };
 
     const handleReset = () => {
