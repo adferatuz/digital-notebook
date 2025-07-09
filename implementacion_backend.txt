@@ -1,0 +1,93 @@
+# Plan de Implementación del Backend y Persistencia de Datos
+## Documento Resumen - Checkpoint: 04/07/2025
+
+Este documento resume el plan estratégico para construir la arquitectura de backend y la lógica de persistencia de datos para la aplicación "Digital Notebook", utilizando Supabase como proveedor de servicios de backend y JavaScript (con JSDoc) en el frontend de React.
+
+---
+
+### **Paso 1: Diseño de la Base de Datos Relacional en Supabase**
+
+La base del sistema será una base de datos PostgreSQL relacional, elegida por su capacidad para manejar datos estructurados y las relaciones claras entre ellos.
+
+**Tablas Principales:**
+
+1.  **`users` (Gestionada por Supabase Auth)**
+    *   **Propósito:** Almacenar la información del superusuario (la psicóloga).
+    *   **Gestión:** Creada y manejada automáticamente por el servicio de Autenticación de Supabase.
+    *   **Columnas Clave:** `id` (UUID), `email`, `encrypted_password`.
+
+2.  **`test_sessions`**
+    *   **Propósito:** Almacenar cada conjunto de credenciales generado para una nueva prueba.
+    *   **Columnas:**
+        *   `id` (BIGINT, Primary Key, Autoincremental)
+        *   `test_id` (TEXT, No nulo, Único) - El ID legible generado por la aplicación (ej: "prueba-a1b2c3").
+        *   `credential_tutor_a` (TEXT, No nulo)
+        *   `credential_tutor_b` (TEXT, No nulo)
+        *   `created_at` (TIMESTAMPTZ, Default: `now()`)
+        *   `expires_at` (TIMESTAMPTZ, No nulo)
+        *   `user_id` (UUID, **Foreign Key** a `users.id`) - **Relación clave** que vincula cada prueba a la psicóloga que la creó.
+
+3.  **`edah_forms`**
+    *   **Propósito:** Almacenar los datos de cada formulario EDAH completado por los tutores.
+    *   **Columnas:**
+        *   `id` (BIGINT, Primary Key, Autoincremental)
+        *   `form_data` (JSONB, No nulo) - Almacena todas las respuestas del formulario en formato JSON.
+        *   `filled_by_credential` (TEXT, No nulo) - La credencial específica usada para llenar el formulario.
+        *   `created_at` (TIMESTAMPTZ, Default: `now()`)
+        *   `test_session_id` (BIGINT, **Foreign Key** a `test_sessions.id`) - **Relación clave** que vincula cada formulario a una sesión de prueba.
+
+---
+
+### **Paso 2: Arquitectura Frontend Desacoplada (JavaScript)**
+
+Se implementará un patrón de separación de responsabilidades para mantener el código organizado, escalable y fácil de mantener, incluso sin TypeScript.
+
+1.  **Capa de Modelos (Contratos con JSDoc):**
+    *   **Ubicación:** `src/models/`
+    *   **Propósito:** Definir la estructura de los objetos de datos usando comentarios JSDoc. Esto proporciona documentación y ayuda al autocompletado.
+    *   **Ejemplo (`TestSession.js`):** `@typedef {object} TestSession ...`
+
+2.  **Capa de Servicios:**
+    *   **Ubicación:** `src/services/`
+    *   **Propósito:** Aislar toda la comunicación con la API de Supabase. Este módulo no conocerá React. Su única responsabilidad es realizar operaciones CRUD (Crear, Leer, etc.).
+    *   **Ejemplo (`testSessionService.js`):** `async function createTestSession(sessionData) { ... }`
+
+3.  **Capa de Hooks Personalizados:**
+    *   **Ubicación:** `src/hooks/`
+    *   **Propósito:** Servir como mediador entre los servicios y los componentes de UI. Manejarán el estado de las llamadas a la API (`isLoading`, `error`, `data`).
+    *   **Ejemplo (`useTestSessions.js`):** Expondrá funciones como `generateNewTestSession` que los componentes pueden llamar.
+
+4.  **Capa de Componentes (UI):**
+    *   **Ubicación:** `src/components/`
+    *   **Propósito:** Ser lo más "tontos" posible. Su única función es mostrar la UI y llamar a las funciones expuestas por los hooks para realizar acciones o solicitar datos.
+
+---
+
+### **Paso 3: Flujo de Datos y Lógica de Negocio**
+
+1.  **Autenticación:** La psicóloga inicia sesión a través de Supabase Auth, obteniendo un token JWT que se usará para autorizar todas las acciones posteriores.
+2.  **Generación de Pruebas:** Al generar credenciales, se crea una nueva fila en `test_sessions`, vinculada al `user_id` de la psicóloga.
+3.  **Llenado de Formularios:** Un tutor usa una credencial para acceder y llenar un formulario. Al enviarlo, se crea una nueva fila en `edah_forms`, vinculada al `test_session_id` correspondiente.
+4.  **Visualización de Resultados:**
+    *   La psicóloga, autenticada, accede a una vista de "Resultados".
+    *   Se realiza una consulta a Supabase que pide una `test_session` específica y, gracias a la relación, pide **unir y traer todos los `edah_forms` asociados**.
+    *   La UI recibe un objeto completo con los datos de la prueba y un array con los dos formularios llenos, listos para ser mostrados lado a lado para su análisis.
+
+---
+
+### **Paso 4: Plan de Optimización y Escalabilidad Futura**
+
+El diseño actual permite optimizaciones futuras sin necesidad de re-arquitectura.
+
+1.  **Índices (Indexes):**
+    *   **Objetivo:** Acelerar las consultas a medida que crezca el volumen de datos.
+    *   **Columnas a Indexar Prioritariamente:**
+        *   `test_sessions.user_id` (para búsquedas de pruebas por psicóloga).
+        *   `edah_forms.test_session_id` (para la carga rápida de resultados de una prueba).
+
+2.  **Disparadores (Triggers) y Funciones de Base de Datos:**
+    *   **Objetivo:** Automatizar lógica de negocio directamente en la base de datos para mayor robustez.
+    *   **Posibles Usos:**
+        *   Mantener automáticamente una columna `updated_at`.
+        *   Implementar validaciones a nivel de base de datos (ej: no permitir inserciones para pruebas expiradas).
+        *   Pre-calcular resúmenes o puntuaciones de los formularios.
