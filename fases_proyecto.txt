@@ -1,0 +1,50 @@
+Fase 1: Reestructuración del Dashboard y Creación del Layout Principal
+
+1.  Modificar el Componente `Dashboard`: Convertirlo en un layout principal que contenga el `Sidebar` y el área de contenido (`MainContent`).
+2.  Crear el Componente `Sidebar`:
+    *   Tendrá un diseño vertical y será colapsable.
+    *   Incluirá un botón (ícono de caret) en la parte inferior para controlar su estado (expandido/colapsado).
+    *   Contendrá los enlaces a las funcionalidades. Inicialmente, tendrá un solo elemento: "Generar Credenciales".
+3.  Crear el Componente `MainContent`:
+    *   Este será el "lienzo" donde se renderizarán los elementos.
+    *   Por defecto, cuando no haya ninguna opción del `Sidebar` seleccionada, mostrará una imagen representativa de psicología con opacidad.
+    *   Cuando se haga clic en una opción del `Sidebar`, este componente renderizará la vista o formulario correspondiente.
+
+---->>> REALIZADO 
+---
+
+Fase 2: Implementación del Panel de Generación de Credenciales
+
+1.  Crear el Componente `CredentialGenerator`:
+
+    *   Este componente se mostrará en el `MainContent` al hacer clic en "Generar Credenciales" en el `Sidebar`. ---> REALIZADO
+
+    *   Tendrá un botón: "Generar credenciales para nueva prueba". ---> REALIZADO
+
+    *   Al hacer clic, generará dinámicamente un **ID de prueba único** y **dos credenciales** asociadas a ese ID (por ejemplo, `TutorA-IDPrueba` y `TutorB-IDPrueba`). --->>> REALIZADO
+
+    *   Mostrará estas credenciales en pantalla para que la psicóloga pueda compartirlas.--->>> REALIZADO
+
+2.  Lógica de Persistencia de Credenciales: 
+
+    *   Cada vez que se generen credenciales, se creará un archivo JSON inicial en un nuevo directorio protegido (ej: `/data/pruebas_pendientes/`). --->>> EN PROCESO
+    
+    *   Este archivo (ej: `IDPrueba.json`) contendrá el ID, las dos credenciales y una fecha de expiración (7 días desde su creación). Esto nos permitirá validarlas más tarde.
+
+    ---->>> EN PROCESO
+
+---
+
+POSIBILIDAD DE USAR SUPABASE COMO SERVIDOR Y BASE DE DATOS
+
+El plan gratuito de Supabase es una opción viable y muy adecuada para la persistencia de datos de esta aplicación, especialmente considerando que no se cuenta con un backend propio y el objetivo es validar el producto antes de una inversión.
+
+**Ventajas del Plan Gratuito de Supabase para este proyecto:**
+
+*   **Tamaño de la Base de Datos:** El límite de 500 MB es más que suficiente. Con un estimado de 20-30 formularios EDAH al mes (incluyendo credenciales), el consumo anual sería de aproximadamente 4.3 MB, muy por debajo del límite.
+*   **Transferencia de Datos (Egress):** El límite de 1 GB mensual es amplio. El bajo volumen de usuarios y formularios generaría una transferencia de datos mínima.
+*   **Usuarios Activos Mensuales (MAUs):** El límite de 50,000 MAUs es extremadamente generoso. Con 1 psicóloga y ~30 tutores al mes, el uso estaría muy por debajo de este umbral.
+*   **Almacenamiento de Archivos (Storage):** Si solo se almacenan datos de texto en la base de datos, el límite de 1 GB de almacenamiento de archivos no sería un factor.
+*   **Invocaciones de Edge Functions:** El límite de 500,000 invocaciones mensuales es muy alto. Las operaciones de guardar/leer credenciales y formularios generarían solo unas pocas docenas o cientos de invocaciones al mes.
+
+**Conclusión:** El plan gratuito de Supabase es robusto y generoso para el caso de uso actual, permitiendo operar la aplicación sin costos iniciales y escalando de forma fluida si el proyecto crece.

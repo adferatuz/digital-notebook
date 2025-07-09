@@ -1,0 +1,166 @@
+# Guía de Arquitectura Frontend para "Digital Notebook"
+
+## Introducción
+
+Este documento define la arquitectura frontend y los contratos de datos necesarios para desarrollar la aplicación "Digital Notebook". El objetivo es crear una base de código desacoplada, escalable y lista para una integración transparente con el backend de Supabase (Base de Datos, Autenticación y Edge Functions).
+
+Seguiremos un patrón de responsabilidades claras:
+- **Componentes (UI):** Muestran datos y capturan eventos del usuario.
+- **Hooks:** Orquestan la lógica de estado y conectan la UI con los servicios.
+- **Servicios:** Encapsulan toda la comunicación con el backend (API calls).
+- **Modelos:** Definen la estructura de los datos (contratos).
+
+---
+
+## 1. Modelos de Datos (Contratos con JSDoc)
+
+Estos son los "contratos" que el frontend y el backend compartirán. Crearemos una nueva carpeta `src/models` para alojar estos archivos.
+
+**Acción:** Crear la carpeta `src/models` y los siguientes archivos dentro.
+
+**`src/models/User.js`**
+/**
+ * @typedef {object} UserProfile
+ * @property {string} id - UUID del usuario en Supabase Auth.
+ * @property {string} email - Correo electrónico del usuario.
+ * @property {string} [full_name] - Nombre completo de la psicóloga.
+ * @property {string} [avatar_url] - URL a la imagen de perfil.
+ */
+
+**`src/models/TestSession.js`**
+/**
+ * @typedef {object} TestSession
+ * @property {number} id - ID autonumérico de la sesión de prueba.
+ * @property {string} test_id - ID legible y único para la URL (ej: "prueba-a1b2c3").
+ * @property {string} patient_name - Nombre del paciente para identificar la prueba.
+ * @property {string} credential_tutor_a - Credencial para el Tutor A.
+ * @property {string} credential_tutor_b - Credencial para el Tutor B.
+ * @property {string} created_at - Timestamp de creación (ISO 8601).
+ * @property {string} expires_at - Timestamp de expiración (ISO 8601).
+ * @property {string} user_id - UUID de la psicóloga que creó la prueba.
+ * @property {EdahFormResponse[]} [form_responses] - (Opcional) Array con los dos formularios llenos.
+ */
+
+**`src/models/EdahForm.js`**
+/**
+ * @typedef {object} EdahFormResponse
+ * @property {number} id - ID autonumérico de la respuesta del formulario.
+ * @property {object} form_data - Objeto JSON con todas las respuestas del formulario.
+ * @property {'TUTOR_A' | 'TUTOR_B'} filled_by_role - Rol del tutor que llenó el formulario.
+ * @property {string} filled_by_credential - Credencial específica utilizada.
+ * @property {string} created_at - Timestamp de envío (ISO 8601).
+ * @property {number} test_session_id - ID de la sesión de prueba a la que pertenece.
+ */
+
+---
+
+## 2. Arquitectura por Módulos y Funcionalidades
+
+### A. Autenticación (`src/auth`)
+
+- **Objetivo:** Gestionar el login, logout y sesión de la psicóloga.
+- **Componentes:** `Login.jsx`, `Register.jsx`, `ForgotPassword.jsx` utilizarán el hook `useAuth`.
+- **Hook (`src/auth/hooks/useAuth.js`):**
+    - **Responsabilidad:** Exponer funciones como `loginWithPassword`, `signOut`, `getCurrentUser`. Gestionar el estado de autenticación global (usuario, sesión, loading, error).
+    - **Acción:** Refactorizar `useAuth.js` para que utilice `authService`.
+- **Servicio (`src/auth/services/authService.js`):**
+    - **Responsabilidad:** Contener toda la lógica de Supabase Auth.
+    - **Funciones a implementar:**
+        - `signIn(email, password)`: Inicia sesión.
+        - `signOut()`: Cierra la sesión.
+        - `getCurrentUser()`: Obtiene el usuario actual de la sesión.
+        - `onAuthStateChange(callback)`: Escucha cambios en la autenticación.
+
+### B. Gestión de Pruebas (Dashboard)
+
+- **Objetivo:** Generar nuevas pruebas, visualizar las existentes y ver sus resultados.
+- **Componentes:**
+    - `CredentialGenerator.jsx`: Usará el hook `useTestSessions` para crear nuevas pruebas.
+    - `Dashboard.jsx`: Usará `useTestSessions` para listar las pruebas existentes.
+- **Hook (NUEVO - `src/hooks/useTestSessions.js`):**
+    - **Responsabilidad:** Gestionar el estado de las sesiones de prueba (creación, carga, listado).
+    - **Funciones a exponer:**
+        - `createTestSession(patientName)`: Llama al servicio para crear una nueva sesión.
+        - `getTestSessions()`: Obtiene la lista de todas las sesiones del usuario.
+        - `getTestSessionDetails(testId)`: Obtiene una sesión y sus formularios asociados.
+    - **Estado que maneja:** `sessions`, `currentSession`, `isLoading`, `error`.
+- **Servicio (NUEVO - `src/services/testSessionService.js`):**
+    - **Responsabilidad:** Realizar las operaciones CRUD para las sesiones de prueba en la tabla `test_sessions`.
+    - **Funciones a implementar:**
+        - `create(patientName)`: Llama a una Edge Function de Supabase para generar la sesión y credenciales.
+        - `getAll()`: Obtiene todas las sesiones de la psicóloga logueada.
+        - `getById(testId)`: Obtiene una sesión específica con sus `form_responses` anidados.
+
+### C. Llenado de Formulario EDAH
+
+- **Objetivo:** Permitir a los tutores acceder con una credencial y enviar el formulario EDAH.
+- **Componentes:**
+    - `CredentialsAccess.jsx`: Valida la credencial.
+    - `EdahForm.jsx`: Gestiona el llenado y envío del formulario.
+- **Hook (NUEVO - `src/hooks/useEdahForm.js`):**
+    - **Responsabilidad:** Validar credenciales y enviar el formulario.
+    - **Funciones a exponer:**
+        - `validateCredential(credential)`: Verifica si una credencial es válida y no ha sido usada.
+        - `submitForm(formData, credential)`: Envía los datos del formulario.
+    - **Estado que maneja:** `isValidating`, `isSubmitting`, `error`, `testSessionInfo`.
+- **Servicio (NUEVO - `src/services/edahFormService.js`):**
+    - **Responsabilidad:** Interactuar con el backend para la validación y envío de formularios.
+    - **Funciones a implementar:**
+        - `validate(credential)`: Llama a una Edge Function que verifica la credencial en `test_sessions`.
+        - `submit(formData, credential)`: Inserta una nueva fila en la tabla `edah_forms`.
+
+---
+
+## 3. Plan de Implementación Frontend (Roadmap)
+
+1.  **Crear `src/models`:** Añadir los archivos `User.js`, `TestSession.js` y `EdahForm.js` con las definiciones JSDoc.
+
+2.  **Crear `src/services`:**
+    - Crear la carpeta `src/services`.
+    - Mover `src/auth/services/authService.js` a `src/services/authService.js`.
+    - Crear los archivos `testSessionService.js` y `edahFormService.js` con funciones vacías (placeholders).
+
+3.  **Refactorizar `src/auth`:**
+    - Actualizar `useAuth.js` para que llame a las funciones de `authService.js`.
+    - Asegurarse de que el estado del usuario se propaga correctamente por la aplicación (ej: a través de un Context.Provider).
+
+4.  **Implementar Gestión de Pruebas:**
+    - Crear el hook `useTestSessions.js`.
+    - Conectar `CredentialGenerator.jsx` al hook para que la función `createTestSession` se llame al generar credenciales.
+    - Conectar `Dashboard.jsx` para que liste las sesiones obtenidas del hook.
+
+5.  **Implementar Flujo de Formulario EDAH:**
+    - Crear el hook `useEdahForm.js`.
+    - En `CredentialsAccess.jsx`, usar `validateCredential` del hook.
+    - En `EdahForm.jsx`, usar `submitForm` del hook al enviar el formulario.
+
+6.  **Limpieza y Reorganización:**
+    - Mover todos los hooks (`useForm.js`, `useAuth.js`, etc.) a la carpeta central `src/hooks`.
+    - Eliminar los archivos de lógica (`*.logic.js`) de los componentes y mover esa responsabilidad a los hooks correspondientes.
+
+---
+
+## 4. Flujo de Ejemplo: Generar y Ver Resultados
+
+1.  **Psicóloga (Dashboard):**
+    - Ingresa el nombre del paciente en `CredentialGenerator.jsx`.
+    - Al hacer clic en "Generar", se llama a `createTestSession('Nombre Paciente')` desde `useTestSessions`.
+    - El hook muestra un estado de `isLoading = true`.
+    - El servicio `testSessionService.create()` llama a la Edge Function en Supabase.
+    - La Edge Function crea la fila en `test_sessions` y devuelve el objeto `TestSession` completo.
+    - El hook recibe los datos, actualiza su estado (`isLoading = false`, añade la nueva sesión a la lista) y la UI se refresca mostrando las nuevas credenciales.
+
+2.  **Tutor (Acceso con Credencial):**
+    - Ingresa su credencial en `CredentialsAccess.jsx`.
+    - Se llama a `validateCredential('xxx-xxx')` desde `useEdahForm`.
+    - El servicio `edahFormService.validate()` llama a una Edge Function que confirma que la credencial existe, es válida y no se ha usado.
+    - El hook recibe la confirmación y permite el paso a `EdahForm.jsx`.
+
+3.  **Psicóloga (Ver Resultados):**
+    - Hace clic en una prueba de la lista en el `Dashboard`.
+    - Se navega a una página de detalles (ej: `/dashboard/resultados/prueba-a1b2c3`).
+    - El componente de detalles llama a `getTestSessionDetails('prueba-a1b2c3')` desde `useTestSessions`.
+    - El servicio `testSessionService.getById()` consulta a Supabase, pidiendo la sesión y uniendo las `form_responses` relacionadas.
+    - El hook recibe el objeto `TestSession` con los formularios anidados, y la UI los renderiza para su comparación.
+
+Al seguir esta guía, el equipo de frontend puede trabajar de forma autónoma, construyendo toda la aplicación sobre una capa de servicios simulada. Una vez completado, la conexión con el backend de Supabase será simplemente cuestión de implementar la lógica dentro de las funciones de servicio y las Edge Functions, sin necesidad de alterar la UI o la lógica de negocio del frontend.

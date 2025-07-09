@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import Home from './pages/Home';
 import DigitalNotebook from './pages/DigitalNotebook';
@@ -12,7 +12,6 @@ import Dashboard from './pages/Dashboard/Dashboard';
 
 function App() {
   return (
-    <Router>
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -26,7 +25,6 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>
-    </Router>
   );
 }
 

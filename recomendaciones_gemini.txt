@@ -1,0 +1,20 @@
+Recomendaciones para Mantener el Contexto con Gemini:
+
+1.  **Utiliza un archivo `GEMINI.md` en tu proyecto:**
+    *   Crea un archivo `GEMINI.md` en la raíz de tu proyecto.
+    *   Documenta el propósito del proyecto, tecnologías, convenciones, estado actual y decisiones de diseño.
+    *   Pide a Gemini que lea este archivo al inicio de cada sesión para que se ponga al día.
+
+2.  **Mantén tu repositorio Git limpio y actualizado:**
+    *   Asegúrate de que tus ramas estén actualizadas y los commits sean descriptivos.
+    *   Gemini puede usar `git status`, `git branch`, `git log` para entender el estado.
+
+3.  **Proporciona un resumen conciso al inicio de la sesión:**
+    *   Un breve resumen tuyo al principio de la sesión es muy útil para retomar el contexto.
+
+4.  **Usa la herramienta `save_memory` para preferencias personales (no de proyecto):**
+    *   `save_memory` es para recordar hechos o preferencias *tuyas* como usuario (ej. gestor de paquetes preferido).
+    *   No la uses para el contexto del proyecto; eso va en `GEMINI.md`.
+
+5.  **Revisa el historial de tu terminal:**
+    *   Puedes revisar el historial de comandos en tu terminal para recordar lo que se hizo en sesiones anteriores.
