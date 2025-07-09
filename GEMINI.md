@@ -62,3 +62,7 @@ Implementación del panel de generación de credenciales y lógica de persistenc
 ## Notas Adicionales
 *   La persistencia de datos se realizará en archivos JSON en un directorio protegido, ya que no se utiliza una base de datos.
 *   Las credenciales generadas tienen una validez de 7 días.
+
+## Notas Adicionales
+*   La persistencia de datos se realizará en archivos JSON en un directorio protegido, ya que no se utiliza una base de datos.
+*   Las credenciales generadas tienen una validez de 7 días.
