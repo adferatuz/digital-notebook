@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useForm } from '../../../hooks/useForm';
-import { 
-  FORM_FIELDS, 
-  VALIDATION_RULES, 
-  INITIAL_VALUES, 
-  handleFormSubmission 
-} from './DigitalNotebookForm.logic';
+// import { 
+//   FORM_FIELDS, 
+//   VALIDATION_RULES, 
+//   INITIAL_VALUES, 
+//   handleFormSubmission 
+// } from './DigitalNotebookForm.logic';
 
 import FormHeader from '../FormHeader';
 import Input from '../../ui/Input';
@@ -14,6 +14,32 @@ import Checkbox from '../../ui/Checkbox';
 import Button from '../../ui/Button';
 
 import styles from './DigitalNoteBookForm.module.css';
+
+// --- Temporary constants until a proper hook is created ---
+const FORM_FIELDS = {
+  EVALUADOR: 'evaluador',
+  EDAD: 'edad',
+  FECHA: 'fecha',
+  CONTENT: 'content',
+  TERMS: 'terms',
+};
+
+const INITIAL_VALUES = {
+  [FORM_FIELDS.EVALUADOR]: '',
+  [FORM_FIELDS.EDAD]: '',
+  [FORM_FIELDS.FECHA]: '',
+  [FORM_FIELDS.CONTENT]: '',
+  [FORM_FIELDS.TERMS]: false,
+};
+
+const VALIDATION_RULES = {
+  [FORM_FIELDS.EVALUADOR]: { required: true },
+  [FORM_FIELDS.EDAD]: { required: true },
+  [FORM_FIELDS.FECHA]: { required: true },
+  [FORM_FIELDS.CONTENT]: { required: true, minLength: 10 },
+  [FORM_FIELDS.TERMS]: { required: true },
+};
+// --- End of temporary constants ---
 
 const DigitalNotebookForm = ({ onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,26 +58,35 @@ const DigitalNotebookForm = ({ onClose }) => {
     e.preventDefault();
     
     if (!validateForm()) {
+      setSubmitMessage('Por favor, corrige los errores.');
       return;
     }
 
     setIsSubmitting(true);
-    setSubmitMessage('');
+    setSubmitMessage('Simulando envío...');
+    console.log("Form values submitted:", values);
 
-    try {
-      const result = await handleFormSubmission(values);
-      
-      if (result.success) {
-        setSubmitMessage('¡Formulario enviado correctamente!');
-        resetForm();
-      } else {
-        setSubmitMessage('Error al enviar el formulario. Inténtalo de nuevo.');
-      }
-    } catch (error) {
-      setSubmitMessage(`Error inesperado. Inténtalo de nuevo. ${error.message}`);
-    } finally {
+    // Mock submission logic
+    setTimeout(() => {
+      setSubmitMessage('¡Formulario enviado correctamente! (simulado)');
       setIsSubmitting(false);
-    }
+      // resetForm();
+    }, 1500);
+
+    // try {
+    //   const result = await handleFormSubmission(values);
+      
+    //   if (result.success) {
+    //     setSubmitMessage('¡Formulario enviado correctamente!');
+    //     resetForm();
+    //   } else {
+    //     setSubmitMessage('Error al enviar el formulario. Inténtalo de nuevo.');
+    //   }
+    // } catch (error) {
+    //   setSubmitMessage(`Error inesperado. Inténtalo de nuevo. ${error.message}`);
+    // } finally {
+    //   setIsSubmitting(false);
+    // }
   };
 
   const handleReset = () => {
