@@ -47,21 +47,25 @@ Esta aclaración es crucial para la implementación de `edahFormService.js` y `u
 Implementación del panel de generación de credenciales y lógica de persistencia de datos en archivos JSON protegidos.
 
 **Roadmap Detallado:**
-1.  **Implementar `testSessionService.js`**: Conectar el frontend a Supabase para la gestión de sesiones de prueba (crear, obtener todas, obtener por ID).
-2.  **Implementar `useTestSessions.js`**: Crear un hook de React para interactuar con los datos y acciones de las sesiones de prueba.
-3.  **Integrar `useTestSessions` con la UI**: Refactorizar `CredentialGenerator.jsx` y `Dashboard.jsx`.
-4.  **Implementar `edahFormService.js`**: Conectar el frontend a Supabase para la validación de credenciales y el envío de formularios EDAH.
-5.  **Implementar `useEdahForm.js`**: Crear un hook de React para manejar la validación y envío de formularios EDAH.
-6.  **Integrar `useEdahForm` con la UI**: Refactorizar `CredentialsAccess.jsx` y `EdahForm.jsx`.
-7.  **Refactorizar `FormEdah/EdahForm.jsx` (arreglo temporal)**: Aplicar un arreglo temporal para eliminar dependencias de archivos `.logic.js` eliminados.
+1.  **Refactorización de `CredentialsForm.jsx`**: El formulario de acceso ahora solicita `testId` y `credential` para el flujo de tutores. - **COMPLETADA**
+2.  **Centralización del cliente de Supabase**: Se ha creado `src/utils/supabase.js` para inicializar y exportar el cliente de Supabase. - **COMPLETADA**
+3.  **Implementar `testSessionService.js`**: Conexión del frontend a Supabase para la gestión de sesiones de prueba (crear, obtener todas, obtener por ID). - **COMPLETADA**
+4.  **Refactorización de `authService.js`**: Ahora utiliza el cliente de Supabase centralizado. - **COMPLETADA**
+5.  **Implementar `useTestSessions.js`**: Crear un hook de React para interactuar con los datos y acciones de las sesiones de prueba.
+6.  **Integrar `useTestSessions` con la UI**: Refactorizar `CredentialGenerator.jsx` y `Dashboard.jsx`.
+7.  **Implementar `edahFormService.js`**: Conectar el frontend a Supabase para la validación de credenciales y el envío de formularios EDAH.
+8.  **Implementar `useEdahForm.js`**: Crear un hook de React para manejar la validación y envío de formularios EDAH.
+9.  **Integrar `useEdahForm` con la UI**: Refactorizar `CredentialsAccess.jsx` y `EdahForm.jsx`.
+10. **Refactorizar `FormEdah/EdahForm.jsx` (arreglo temporal)**: Aplicar un arreglo temporal para eliminar dependencias de archivos `.logic.js` eliminados.
+
+## Tareas en la rama `feat/test-session-service`
+Las siguientes tareas son el enfoque principal de esta rama:
+1.  **Implementar `useTestSessions.js`**: Crear un hook de React para interactuar con los datos y acciones de las sesiones de prueba.
+2.  **Integrar `useTestSessions` con la UI**: Refactorizar `CredentialGenerator.jsx` y `Dashboard.jsx` para utilizar el nuevo hook.
 
 ## Convenciones Clave
 *   **Gestor de Paquetes:** pnpm
 *   **Ramas de Git:** `main` (producción), `develop` (desarrollo).
-
-## Notas Adicionales
-*   La persistencia de datos se realizará en archivos JSON en un directorio protegido, ya que no se utiliza una base de datos.
-*   Las credenciales generadas tienen una validez de 7 días.
 
 ## Notas Adicionales
 *   La persistencia de datos se realizará en archivos JSON en un directorio protegido, ya que no se utiliza una base de datos.
