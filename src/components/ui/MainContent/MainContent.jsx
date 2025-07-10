@@ -1,11 +1,18 @@
 import styles from './MainContent.module.css';
 import CredentialGenerator from '../../forms/CredentialGenerator/CredentialGenerator';
 
-const MainContent = ({ activeView }) => {
+const MainContent = ({ activeView, testSessions, isLoading, error, addTestSession }) => {
   const renderContent = () => {
     switch (activeView) {
       case 'credential-generator':
-        return <CredentialGenerator />;
+        return (
+          <CredentialGenerator 
+            testSessions={testSessions}
+            isLoading={isLoading}
+            error={error}
+            addTestSession={addTestSession}
+          />
+        );
       default:
         return (
           <div className={styles.placeholder}>
