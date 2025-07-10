@@ -15,20 +15,20 @@ import styles from "./CredentialsForm.module.css";
 
 // --- Temporary constants until a proper hook is created ---
 const FORM_FIELDS = {
-    EMAIL: 'email',
-    TOKEN_ACCESS: 'token_access',
+    TEST_ID: 'testId',
+    CREDENTIAL: 'credential',
     TERMS: 'terms',
 };
 
 const INITIAL_VALUES = {
-    [FORM_FIELDS.EMAIL]: '',
-    [FORM_FIELDS.TOKEN_ACCESS]: '',
+    [FORM_FIELDS.TEST_ID]: '',
+    [FORM_FIELDS.CREDENTIAL]: '',
     [FORM_FIELDS.TERMS]: false,
 };
 
 const VALIDATION_RULES = {
-    [FORM_FIELDS.EMAIL]: { required: true, isEmail: true },
-    [FORM_FIELDS.TOKEN_ACCESS]: { required: true },
+    [FORM_FIELDS.TEST_ID]: { required: true },
+    [FORM_FIELDS.CREDENTIAL]: { required: true },
     [FORM_FIELDS.TERMS]: { required: true },
 };
 // --- End of temporary constants ---
@@ -73,8 +73,8 @@ const CredentialsForm = ({onClose}) => {
     return (
         <div className={styles.container}>
             <FormHeader
-                title="Ingresar con credenciales"
-                subtitle="Ingresa tu correo electrónico y token de acceso generado por tu especialista para continuar."
+                title="Acceso a la Prueba EDAH"
+                subtitle="Ingresa el ID de la prueba y la credencial que te proporcionaron para continuar."
                 onClose={onClose}
             />
 
@@ -82,24 +82,24 @@ const CredentialsForm = ({onClose}) => {
                 <div className={styles.formFields}>
                     <div className={styles.row}>
                         <Input
-                            label="Email"
-                            name={FORM_FIELDS.EMAIL}
-                            type="email"
-                            value={values[FORM_FIELDS.EMAIL]}
+                            label="ID de la Prueba"
+                            name={FORM_FIELDS.TEST_ID}
+                            type="text"
+                            value={values[FORM_FIELDS.TEST_ID]}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            error={errors[FORM_FIELDS.EMAIL]}
-                            placeholder="Email"
+                            error={errors[FORM_FIELDS.TEST_ID]}
+                            placeholder="Ej: EDAH-123456789"
                         />
                         <Input
-                            label="Token de acceso"
-                            name={FORM_FIELDS.TOKEN_ACCESS}
+                            label="Credencial de Acceso"
+                            name={FORM_FIELDS.CREDENTIAL}
                             type="text"
-                            value={values[FORM_FIELDS.TOKEN_ACCESS]}
+                            value={values[FORM_FIELDS.CREDENTIAL]}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            error={errors[FORM_FIELDS.TOKEN_ACCESS]}
-                            placeholder="Please enter your token access"
+                            error={errors[FORM_FIELDS.CREDENTIAL]}
+                            placeholder="Ingresa tu credencial de acceso"
                         />
                     </div>
 
@@ -119,7 +119,7 @@ const CredentialsForm = ({onClose}) => {
                         variant="primary"
                         disabled={isSubmitting}
                     >
-                        {isSubmitting ? 'Enviando...' : 'Enviar'}
+                        {isSubmitting ? 'Validando...' : 'Validar'}
                     </Button>
 
                     <Button
