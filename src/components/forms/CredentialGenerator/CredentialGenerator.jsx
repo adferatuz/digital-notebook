@@ -1,38 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import styles from './CredentialGenerator.module.css';
 
-const CredentialGenerator = () => {
-  const [generatedCredentials, setGeneratedCredentials] = useState([]);
+const CredentialGenerator = ({ testSessions, isLoading, error, addTestSession }) => {
 
-  useEffect(() => {
-    const loadCredentials = () => {
-      try {
-        const stored = JSON.parse(localStorage.getItem('edahCredentials')) || [];
-        setGeneratedCredentials(stored);
-      } catch (error) {
-        console.error("Failed to load credentials from localStorage:", error);
-      }
-    };
-    loadCredentials();
-  }, []);
-
-  const generateCredentials = () => {
+  const generateCredentials = async () => {
     const testId = `EDAH-${Date.now()}`;
     const newCredential = {
       testId,
-      tutorA: `TutorA-${testId}`,
-      tutorB: `TutorB-${testId}`,
+      credential_tutor_a: `TutorA-${testId}`,
+      credential_tutor_b: `TutorB-${testId}`,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     };
 
-    const updatedCredentials = [...generatedCredentials, newCredential];
-    setGeneratedCredentials(updatedCredentials);
-    try {
-      localStorage.setItem('edahCredentials', JSON.stringify(updatedCredentials));
-    } catch (error) {
-      console.error("Failed to save credentials to localStorage:", error);
-    }
+    await addTestSession(newCredential);
   };
+
+  if (isLoading) {
+    return <div className={styles.container}>Cargando sesiones de prueba...</div>;
+  }
+
+  if (error) {
+    return <div className={styles.container}>Error: {error.message}</div>;
+  }
 
   return (
     <div className={styles.container}>
@@ -41,14 +30,14 @@ const CredentialGenerator = () => {
         Generar Nuevas Credenciales
       </button>
 
-      {generatedCredentials.length > 0 && (
+      {testSessions.length > 0 && (
         <div className={styles.credentialsList}>
           <h3>Credenciales Generadas:</h3>
-          {generatedCredentials.map((cred, index) => (
-            <div key={index} className={styles.credentialsDisplay}>
+          {testSessions.map((cred) => (
+            <div key={cred.testId} className={styles.credentialsDisplay}>
               <p><strong>ID de la Prueba:</strong> {cred.testId}</p>
-              <p><strong>Credencial Tutor A:</strong> {cred.tutorA}</p>
-              <p><strong>Credencial Tutor B:</strong> {cred.tutorB}</p>
+              <p><strong>Credencial Tutor A:</strong> {cred.credential_tutor_a}</p>
+              <p><strong>Credencial Tutor B:</strong> {cred.credential_tutor_b}</p>
               <p><strong>Válido hasta:</strong> {new Date(cred.expiresAt).toLocaleString()}</p>
             </div>
           ))}
