@@ -56,17 +56,34 @@ Implementación del panel de generación de credenciales y lógica de persistenc
 7.  **Implementar `edahFormService.js`**: Conectar el frontend a Supabase para la validación de credenciales y el envío de formularios EDAH.
 8.  **Implementar `useEdahForm.js`**: Crear un hook de React para manejar la validación y envío de formularios EDAH.
 9.  **Integrar `useEdahForm` con la UI**: Refactorizar `CredentialsAccess.jsx` y `EdahForm.jsx`.
-10. **Refactorizar `FormEdah/EdahForm.jsx` (arreglo temporal)**: Aplicar un arreglo temporal para eliminar dependencias de archivos `.logic.js` eliminados.
+10. **Refactorizar `FormEdah/EdahForm.jsx` (arreglo temporal)**: Aplicar un arreglo temporal para eliminar dependencias de archivos `.logic.js` eliminados. - **COMPLETADA**
 
 ## Tareas en la rama `feat/test-session-service`
 Las siguientes tareas son el enfoque principal de esta rama:
 1.  **Implementar `useTestSessions.js`**: Crear un hook de React para interactuar con los datos y acciones de las sesiones de prueba. - **COMPLETADA**
 2.  **Integrar `useTestSessions` con la UI**: Refactorizar `CredentialGenerator.jsx` y `Dashboard.jsx` para utilizar el nuevo hook. - **COMPLETADA**
+3.  **Recuperar `EdahForm.logic.js`**: Se ha recuperado el archivo `src/components/forms/FormEdah/EdahForm.logic.js` para el correcto funcionamiento de `EdahForm.jsx`. - **COMPLETADA**
 
 ## Próximas Tareas (Próxima Sesión)
-1.  **Implementar `edahFormService.js`**: Conectar el frontend a Supabase para la validación de credenciales y el envío de formularios EDAH.
-2.  **Implementar `useEdahForm.js`**: Crear un hook de React para manejar la validación y envío de formularios EDAH.
-3.  **Definir el propósito y la integración de `DigitalNotebookForm.jsx`**: Analizar si este formulario es necesario para el flujo actual del proyecto y, en caso afirmativo, planificar su integración con la persistencia de datos.
+**Prioridad: Adecuación y Refactorización de `EdahForm.jsx`**
+1.  **Modificar `EdahForm.logic.js` (el hook `useEdahForm`):**
+    *   Añadir `testId` al estado `studentInfo`.
+    *   Asegurar `testId` en el objeto retornado por `generateReport`.
+2.  **Modificar `EdahForm.jsx` (UI y Lógica de Carga):**
+    *   Cambiar título: "Información del Estudiante" a "Información del Paciente".
+    *   Cambiar etiqueta: "Evaluador" a "Tutor Evaluado".
+    *   Añadir campo `testId` en la UI: Incluir un nuevo campo de entrada para `testId` en la sección de información del paciente. Este campo debería ser de solo lectura si se recibe un `testId` por URL.
+    *   Leer `testId` de la URL: Implementar la lógica para leer el `testId` de los parámetros de la URL (por ejemplo, `/edah-form?testId=XYZ`) y usarlo para inicializar el campo `testId` en el estado `studentInfo`.
+3.  **Refactorizar `EdahForm.jsx` en componentes por etapas:**
+    *   `EdahInfoForm.jsx`: Componente para la información del paciente/tutor.
+    *   `EdahQuestionsForm.jsx`: Componente para las 20 preguntas con escalas.
+    *   `EdahResultsSummary.jsx`: Componente para la visualización de resultados simplificada para el tutor (lo que queda de la etapa 3 para el tutor).
+4.  **Crear `EdahAnalyticsView.jsx`**: Componente para la visualización de resultados detallada para el psicólogo.
+5.  **Adaptar `EdahAnalyticsView.jsx`**:
+    *   Eliminar análisis descriptivo y puntaje total de la prueba.
+    *   Añadir sección para que el superusuario haga sus propios análisis personalizados.
+    *   Vincular con la lógica de lectura de datos de la base de datos de los formularios ya llenos, asociados al paciente.
+6.  **Integrar `EdahAnalyticsView.jsx`**: Añadir un nuevo ítem en el Sidebar para "Analytics" que dirija a esta vista.
 
 ## Convenciones Clave
 *   **Gestor de Paquetes:** pnpm
