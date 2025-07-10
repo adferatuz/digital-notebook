@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import Home from './pages/Home';
 import DigitalNotebook from './pages/DigitalNotebook';
+import EdahForm from './components/forms/FormEdah/EdahForm';
 import NotFound from './pages/NotFound';
 import './styles/globals.css';
 import Login from './auth/pages/Login/Login';
@@ -15,7 +16,7 @@ function App() {
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/acceso-prueba" element={<DigitalNotebook />} />
+          <Route path="/acceso-prueba" element={<EdahForm />} />
           <Route path="/credentials-access" element={<CredentialsAccess />} />
           {/* Rutas específicas de autenticación */}
           <Route path="/login" element={<Login />} />
