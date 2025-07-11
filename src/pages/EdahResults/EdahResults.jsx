@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { mockEdahResults } from '../../services/mockEdahResults';
-import { mockEdahSummaries } from '../../services/mockEdahSummaries'; // Importamos los resúmenes
+import { getEdahSummaries } from '../../services/edahFormService'; // Importamos la función real
 import { scaleTypes } from '../../components/forms/FormEdah/EdahForm.logic';
 import styles from './EdahResults.module.css';
 
@@ -12,20 +12,20 @@ const PatientSummaryList = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchSummaries = () => {
+    const fetchSummaries = async () => {
       setIsLoading(true);
       setError(null);
-      // Simulación de llamada a API
-      setTimeout(() => {
-        try {
-          // Aquí llamaríamos al servicio real: getAllEdahSummaries()
-          setSummaries(mockEdahSummaries);
-        } catch (err) {
-          setError(err);
-        } finally {
-          setIsLoading(false);
+      try {
+        const { data, error } = await getEdahSummaries();
+        if (error) {
+          throw error;
         }
-      }, 500); // Pequeño delay para simular carga
+        setSummaries(data);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchSummaries();
   }, []);

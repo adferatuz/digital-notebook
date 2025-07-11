@@ -21,13 +21,20 @@ Estamos trabajando en la rama `feat/edah-form-hook`.
 
 Hemos avanzado significativamente en la implementación del flujo del formulario EDAH y la vista de administración. La estructura base está establecida y los componentes principales están integrados.
 
+**Progreso en Edge Functions:**
+Hemos completado la implementación, despliegue y conexión al frontend de la función `get-edah-summaries`. La página de resultados EDAH (`EdahResults.jsx`) ahora consume esta función para obtener el historial de evaluaciones.
+
 ## Plan de Acción para la Siguiente Sesión
 
-1.  **Implementar la lógica de obtención de datos en `EdahResults.jsx`:**
-    *   Actualmente, `EdahResults.jsx` solo muestra un esqueleto. Necesitamos implementar la lógica para llamar a `getEdahResultsByTestId` y renderizar los datos de manera significativa.
-    *   Considerar cómo se presentarán los resultados de múltiples tutores para el mismo `testId`.
-2.  **Configurar las Edge Functions de Supabase:**
-    *   Asegurarse de que las Edge Functions `validate-credential`, `submit-edah-form` y `get-edah-results` estén correctamente implementadas y desplegadas en Supabase para que la aplicación pueda interactuar con la base de datos.
+1.  **Implementar la lógica de obtención de datos en `EdahResults.jsx` (Completado para `get-edah-summaries`):**
+    *   La función `get-edah-summaries` ha sido implementada, desplegada y conectada al frontend.
+    *   **Pendiente:** Implementar la lógica para `getEdahResultsByTestId` y renderizar los datos detallados de un paciente específico.
+    *   **Pendiente:** Considerar cómo se presentarán los resultados de múltiples tutores para el mismo `testId`.
+2.  **Configurar y Desplegar las Edge Functions restantes de Supabase:**
+    *   `validate-credential`: Para el acceso al formulario EDAH.
+    *   `submit-edah-form`: Para enviar los datos del formulario EDAH a la base de datos.
+    *   `get-edah-results-by-id`: Para obtener los resultados detallados de un paciente específico.
+    *   `add-test-session` (o similar): Para la generación de credenciales en `CredentialGenerator.jsx`.
 3.  **Implementar la generación de credenciales en `CredentialGenerator.jsx`:**
     *   Asegurarse de que la función `addTestSession` en `useTestSessions` y el servicio subyacente (`testSessionService.js`) estén correctamente implementados para guardar las credenciales generadas en Supabase.
 4.  **Revisión y Pruebas End-to-End:**
