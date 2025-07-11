@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { mockEdahResults } from '../../services/mockEdahResults';
-import { getEdahSummaries } from '../../services/edahFormService'; // Importamos la función real
+import { getEdahResultsByTestId, getEdahSummaries } from '../../services/edahFormService';
 import { scaleTypes } from '../../components/forms/FormEdah/EdahForm.logic';
 import styles from './EdahResults.module.css';
 
@@ -66,31 +65,26 @@ const ResultDetails = ({ testId }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchResults = () => {
+    const fetchResults = async () => {
       setIsLoading(true);
       setError(null);
-      setTimeout(() => {
-        try {
-          // Aquí llamaríamos a getEdahResultsByTestId(testId)
-          const filteredResults = mockEdahResults.filter(r => r.test_id === testId);
-          if (filteredResults.length === 0) {
-            throw new Error(`No se encontraron resultados para el ID: ${testId}`);
-          }
-          setResults(filteredResults);
-        } catch (err) {
-          setError(err);
-        } finally {
-          setIsLoading(false);
+      try {
+        const { data, error } = await getEdahResultsByTestId(testId);
+        if (error) {
+          throw error;
         }
-      }, 1000);
+        if (data.length === 0) {
+          throw new Error(`No se encontraron resultados para el ID: ${testId}`);
+        }
+        setResults(data);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchResults();
   }, [testId]);
-
-  if (isLoading) return <div className={styles.loading}>Cargando resultados...</div>;
-  if (error) return <div className={styles.error}>Error: {error.message}</div>;
-
-  const studentInfo = results[0].student_info;
 
   return (
     <div className={styles.container}>
@@ -99,52 +93,62 @@ const ResultDetails = ({ testId }) => {
         <Link to="/dashboard/edah-results" className={styles.backLink}>← Volver al historial</Link>
       </div>
 
-      <div className={styles.patientInfoCard}>
-        <h2 className={styles.sectionTitle}>Información del Paciente</h2>
-        <div className={styles.infoGrid}>
-          <p><strong>Nombre:</strong> {studentInfo.name}</p>
-          <p><strong>Edad:</strong> {studentInfo.age} años</p>
-          <p><strong>Grado:</strong> {studentInfo.grade}</p>
-          <p><strong>Test ID:</strong> {testId}</p>
-        </div>
-      </div>
+      {isLoading && <div className={styles.loading}>Cargando resultados...</div>}
+      {error && <div className={styles.error}>Error: {error.message}</div>}
+      {!isLoading && !error && results.length === 0 && (
+        <div className={styles.noResults}>No se encontraron resultados detallados para el ID: {testId}.</div>
+      )}
 
-      <div className={styles.resultsGrid}>
-        {results.map((result, index) => (
-          <div key={result.id} className={styles.resultCard}>
-            <h2 className={styles.cardTitle}>
-              Evaluación {index + 1}
-              <span className={styles.evaluator}>Tutor: {result.student_info.evaluator}</span>
-            </h2>
-            <div className={styles.section}>
-              <h3 className={styles.sectionTitle}>Puntuaciones</h3>
-              <div className={styles.scoresGrid}>
-                {Object.entries(result.scores).map(([scale, score]) => (
-                  <div key={scale} className={styles.scoreItem}>
-                    <span className={styles.scoreScale}>{scaleTypes[scale] || scale}</span>
-                    <span className={styles.scoreValue}>{score}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className={styles.section}>
-              <h3 className={styles.sectionTitle}>Escalas Destacadas</h3>
-              <div className={styles.highlightGrid}>
-                <div className={`${styles.highlightItem} ${styles.highest}`}>
-                  <span className={styles.highlightLabel}>Puntuación Más Alta</span>
-                  <span className={styles.highlightScale}>{scaleTypes[result.highest_score_scale.scale]}</span>
-                  <span className={styles.highlightScore}>{result.highest_score_scale.score}</span>
-                </div>
-                <div className={`${styles.highlightItem} ${styles.lowest}`}>
-                  <span className={styles.highlightLabel}>Puntuación Más Baja</span>
-                  <span className={styles.highlightScale}>{scaleTypes[result.lowest_score_scale.scale]}</span>
-                  <span className={styles.highlightScore}>{result.lowest_score_scale.score}</span>
-                </div>
-              </div>
+      {!isLoading && !error && results.length > 0 && (
+        <>
+          <div className={styles.patientInfoCard}>
+            <h2 className={styles.sectionTitle}>Información del Paciente</h2>
+            <div className={styles.infoGrid}>
+              <p><strong>Nombre:</strong> {results[0].student_info.name}</p>
+              <p><strong>Edad:</strong> {results[0].student_info.age} años</p>
+              <p><strong>Grado:</strong> {results[0].student_info.grade}</p>
+              <p><strong>Test ID:</strong> {testId}</p>
             </div>
           </div>
-        ))}
-      </div>
+
+          <div className={styles.resultsGrid}>
+            {results.map((result, index) => (
+              <div key={result.id} className={styles.resultCard}>
+                <h2 className={styles.cardTitle}>
+                  Evaluación {index + 1}
+                  <span className={styles.evaluator}>Tutor: {result.student_info.evaluator}</span>
+                </h2>
+                <div className={styles.section}>
+                  <h3 className={styles.sectionTitle}>Puntuaciones</h3>
+                  <div className={styles.scoresGrid}>
+                    {Object.entries(result.scores).map(([scale, score]) => (
+                      <div key={scale} className={styles.scoreItem}>
+                        <span className={styles.scoreScale}>{scaleTypes[scale] || scale}</span>
+                        <span className={styles.scoreValue}>{score}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.section}>
+                  <h3 className={styles.sectionTitle}>Escalas Destacadas</h3>
+                  <div className={styles.highlightGrid}>
+                    <div className={`${styles.highlightItem} ${styles.highest}`}>
+                      <span className={styles.highlightLabel}>Puntuación Más Alta</span>
+                      <span className={styles.highlightScale}>{scaleTypes[result.highest_score_scale.scale]}</span>
+                      <span className={styles.highlightScore}>{result.highest_score_scale.score}</span>
+                    </div>
+                    <div className={`${styles.highlightItem} ${styles.lowest}`}>
+                      <span className={styles.highlightLabel}>Puntuación Más Baja</span>
+                      <span className={styles.highlightScale}>{scaleTypes[result.lowest_score_scale.scale]}</span>
+                      <span className={styles.highlightScore}>{result.lowest_score_scale.score}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 };
