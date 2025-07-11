@@ -10,19 +10,20 @@ import Register from './auth/pages/Register/Register';
 import ForgotPassword from './auth/pages/ForgotPassword/ForgotPassword';
 import CredentialsAccess from './pages/CredentialsAcces';
 import Dashboard from './pages/Dashboard/Dashboard';
+import EdahResults from './pages/EdahResults/EdahResults';
+import CredentialGenerator from './components/forms/CredentialGenerator/CredentialGenerator';
 
 function App() {
   return (
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/acceso-prueba" element={<EdahForm />} />
-          <Route path="/credentials-access" element={<CredentialsAccess />} />
-          {/* Rutas específicas de autenticación */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/edah-form" element={<EdahForm />} />
+          <Route path="/dashboard" element={<Dashboard />}>
+            <Route path="credentials-access" element={<CredentialsAccess />} />
+            <Route path="edah-results" element={<EdahResults />} />
+            <Route path="generate-credentials" element={<CredentialGenerator />} />
+          </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>

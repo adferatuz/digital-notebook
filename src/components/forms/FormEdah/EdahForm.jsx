@@ -1,13 +1,15 @@
-import { useState } from 'react';
-import { 
-  useEdahForm, 
-  edahQuestions, 
-  scaleLabels, 
-  scaleTypes 
-} from './EdahForm.logic';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useEdahForm } from '../../../hooks/useEdahForm';
+import PatientInfoForm from './components/PatientInfoForm';
+import EdahQuestionsForm from './components/EdahQuestionsForm';
+import EdahResultsDisplay from './components/EdahResultsDisplay';
 import styles from './EdahForm.module.css';
 
 const EdahForm = () => {
+  const [searchParams] = useSearchParams();
+  const testId = searchParams.get('testId');
+
   const {
     responses,
     studentInfo,
@@ -16,32 +18,74 @@ const EdahForm = () => {
     calculateScores,
     getInterpretation,
     resetForm,
-    generateReport
+    generateReport,
+    edahQuestions,
+    scaleLabels,
+    scaleTypes,
+    submit,
+    isLoading,
+    error
   } = useEdahForm();
 
-  const [currentStep, setCurrentStep] = useState('info'); // 'info', 'questions', 'results'
+  const [currentStep, setCurrentStep] = useState('info'); // 'info', 'questions'
+
+  useEffect(() => {
+    if (!testId) {
+      // Optionally handle the case where testId is missing, e.g., redirect or show an error
+      console.error("testId is missing from URL parameters.");
+    }
+  }, [testId]);
 
   const handleNext = () => {
     if (currentStep === 'info') {
       setCurrentStep('questions');
-    } else if (currentStep === 'questions') {
-      setCurrentStep('results');
     }
   };
 
   const handlePrevious = () => {
     if (currentStep === 'questions') {
       setCurrentStep('info');
-    } else if (currentStep === 'results') {
-      setCurrentStep('questions');
     }
   };
 
-  const handleSubmit = () => {
-    const report = generateReport();
-    console.log('Reporte EDAH:', report);
-    // Aquí puedes agregar lógica para enviar el reporte a una API o guardarlo
-    alert('Evaluación completada. Revisa la consola para ver el reporte completo.');
+  const handleSubmit = async () => {
+    const report = generateReport(testId);
+    console.log('Reporte EDAH a enviar:', report);
+
+    const scores = calculateScores();
+    let maxScore = -1;
+    let minScore = Infinity;
+    let maxScale = '';
+    let minScale = '';
+
+    // Exclude 'total' and 'H+DA' from min/max calculation if they are not primary scales
+    const primaryScales = Object.keys(scores).filter(scale => scale !== 'total' && scale !== 'H+DA');
+
+    primaryScales.forEach(scale => {
+      const score = scores[scale];
+      if (score > maxScore) {
+        maxScore = score;
+        maxScale = scale;
+      }
+      if (score < minScore) {
+        minScore = score;
+        minScale = scale;
+      }
+    });
+
+    console.log('Escala con mayor puntaje:', scaleTypes[maxScale] || maxScale, '(', maxScore, ')');
+    console.log('Escala con menor puntaje:', scaleTypes[minScale] || minScale, '(', minScore, ')');
+
+    const result = await submit(report);
+
+    if (result.success) {
+      alert('Evaluación completada y enviada exitosamente.');
+      // Optionally reset form or redirect after successful submission
+      resetForm();
+      setCurrentStep('info');
+    } else {
+      alert(`Error al enviar la evaluación: ${result.error?.message || 'Error desconocido'}`);
+    }
   };
 
   const handleReset = () => {
@@ -49,211 +93,45 @@ const EdahForm = () => {
     setCurrentStep('info');
   };
 
-  const renderStudentInfo = () => (
-    <div className={styles.stepContainer}>
-      <h3 className={styles.stepTitle}>Información del Estudiante</h3>
-      <div className={styles.infoGrid}>
-        <div className={styles.inputGroup}>
-          <label className={styles.label}>Nombre del estudiante:</label>
-          <input
-            type="text"
-            value={studentInfo.name}
-            onChange={(e) => updateStudentInfo('name', e.target.value)}
-            className={styles.input}
-            placeholder="Ingrese el nombre completo"
-          />
-        </div>
-        
-        <div className={styles.inputGroup}>
-          <label className={styles.label}>Edad:</label>
-          <input
-            type="number"
-            value={studentInfo.age}
-            onChange={(e) => updateStudentInfo('age', e.target.value)}
-            className={styles.input}
-            placeholder="Edad en años"
-            min="3"
-            max="18"
-          />
-        </div>
-        
-        <div className={styles.inputGroup}>
-          <label className={styles.label}>Grado escolar:</label>
-          <input
-            type="text"
-            value={studentInfo.grade}
-            onChange={(e) => updateStudentInfo('grade', e.target.value)}
-            className={styles.input}
-            placeholder="Ej: 3°, 4°, 5°"
-          />
-        </div>
-        
-        <div className={styles.inputGroup}>
-          <label className={styles.label}>Evaluador:</label>
-          <input
-            type="text"
-            value={studentInfo.evaluator}
-            onChange={(e) => updateStudentInfo('evaluator', e.target.value)}
-            className={styles.input}
-            placeholder="Nombre del profesor/evaluador"
-          />
-        </div>
-        
-        <div className={styles.inputGroup}>
-          <label className={styles.label}>Fecha de evaluación:</label>
-          <input
-            type="date"
-            value={studentInfo.date}
-            onChange={(e) => updateStudentInfo('date', e.target.value)}
-            className={styles.input}
-          />
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderQuestions = () => (
-    <div className={styles.stepContainer}>
-      <h3 className={styles.stepTitle}>Evaluación EDAH</h3>
-      <div className={styles.scaleInfo}>
-        <h4>Escala de valoración:</h4>
-        <div className={styles.scaleGrid}>
-          {Object.entries(scaleLabels).map(([value, label]) => (
-            <div key={value} className={styles.scaleItem}>
-              <span className={styles.scaleValue}>{value}</span>
-              <span className={styles.scaleLabel}>{label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-      
-      <div className={styles.questionsContainer}>
-        {Object.entries(edahQuestions).map(([id, question]) => (
-          <div key={id} className={styles.questionCard}>
-            <div className={styles.questionHeader}>
-              <span className={styles.questionNumber}>{id}</span>
-              <span className={`${styles.scaleTag} ${styles[`scale${question.escala}`]}`}>
-                {scaleTypes[question.escala]}
-              </span>
-            </div>
-            
-            <p className={styles.questionText}>{question.pregunta}</p>
-            
-            <div className={styles.responseOptions}>
-              {Object.entries(scaleLabels).map(([value, label]) => (
-                <label key={value} className={styles.radioLabel}>
-                  <input
-                    type="radio"
-                    name={`question-${id}`}
-                    value={value}
-                    checked={responses[id] === parseInt(value)}
-                    onChange={(e) => updateResponse(id, e.target.value)}
-                    className={styles.radioInput}
-                  />
-                  <span className={styles.radioCustom}></span>
-                  <span className={styles.radioText}>
-                    {value} - {label}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderResults = () => {
-    const scores = calculateScores();
-    const interpretation = getInterpretation(scores);
-    
-    return (
-      <div className={styles.stepContainer}>
-        <h3 className={styles.stepTitle}>Resultados de la Evaluación</h3>
-        
-        <div className={styles.resultsGrid}>
-          <div className={styles.studentSummary}>
-            <h4>Información del Estudiante</h4>
-            <p><strong>Nombre:</strong> {studentInfo.name}</p>
-            <p><strong>Edad:</strong> {studentInfo.age} años</p>
-            <p><strong>Grado:</strong> {studentInfo.grade}</p>
-            <p><strong>Evaluador:</strong> {studentInfo.evaluator}</p>
-            <p><strong>Fecha:</strong> {studentInfo.date}</p>
-          </div>
-          
-          <div className={styles.scoresContainer}>
-            <h4>Puntuaciones por Subescala</h4>
-            <div className={styles.scoresGrid}>
-              {Object.entries(scores).map(([scale, score]) => (
-                <div key={scale} className={styles.scoreCard}>
-                  <div className={styles.scoreHeader}>
-                    <span className={styles.scaleName}>
-                      {scaleTypes[scale] || scale}
-                    </span>
-                    <span className={`${styles.interpretation} ${styles[interpretation[scale]?.toLowerCase()]}`}>
-                      {interpretation[scale]}
-                    </span>
-                  </div>
-                  <div className={styles.scoreValue}>{score}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        
-        <div className={styles.interpretationSection}>
-          <h4>Interpretación de Resultados</h4>
-          <div className={styles.interpretationGrid}>
-            <div className={styles.interpretationCard}>
-              <h5>Hiperactividad/Impulsividad (H)</h5>
-              <p>Puntuación: {scores.H} - Nivel: {interpretation.H}</p>
-              <p>Evalúa la inquietud motora, impulsividad y comportamientos hiperactivos.</p>
-            </div>
-            
-            <div className={styles.interpretationCard}>
-              <h5>Déficit de Atención (DA)</h5>
-              <p>Puntuación: {scores.DA} - Nivel: {interpretation.DA}</p>
-              <p>Mide las dificultades de atención, concentración y finalización de tareas.</p>
-            </div>
-            
-            <div className={styles.interpretationCard}>
-              <h5>Trastorno de Conducta (TC)</h5>
-              <p>Puntuación: {scores.TC} - Nivel: {interpretation.TC}</p>
-              <p>Evalúa problemas de comportamiento social y dificultades de relación.</p>
-            </div>
-            
-            <div className={styles.interpretationCard}>
-              <h5>H + DA (Combinado)</h5>
-              <p>Puntuación: {scores['H+DA']} - Nivel: {interpretation['H+DA']}</p>
-              <p>Combinación de hiperactividad y déficit de atención.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   const getStepContent = () => {
     switch (currentStep) {
       case 'info':
-        return renderStudentInfo();
+        return (
+          <PatientInfoForm 
+            studentInfo={studentInfo} 
+            updateStudentInfo={updateStudentInfo} 
+            testId={testId}
+          />
+        );
       case 'questions':
-        return renderQuestions();
-      case 'results':
-        return renderResults();
+        return (
+          <EdahQuestionsForm
+            responses={responses}
+            updateResponse={updateResponse}
+            edahQuestions={edahQuestions}
+            scaleLabels={scaleLabels}
+            scaleTypes={scaleTypes}
+          />
+        );
       default:
-        return renderStudentInfo();
+        return (
+          <PatientInfoForm 
+            studentInfo={studentInfo} 
+            updateStudentInfo={updateStudentInfo} 
+            testId={testId}
+          />
+        );
     }
   };
 
   const canProceed = () => {
     if (currentStep === 'info') {
-      return Object.values(studentInfo).every(value => value.trim() !== '');
+      return Object.values(studentInfo).every(value => value.trim() !== '') && testId;
     }
     if (currentStep === 'questions') {
       return Object.keys(edahQuestions).every(id => responses[id] !== undefined);
     }
-    return true;
+    return false; // Should not proceed beyond questions in this form
   };
 
   return (
@@ -274,30 +152,26 @@ const EdahForm = () => {
         </div>
         <div className={styles.progressLine}></div>
         <div className={styles.progressStep}>
-          <div className={`${styles.progressDot} ${currentStep === 'questions' ? styles.active : currentStep === 'results' ? styles.completed : ''}`}>
+          <div className={`${styles.progressDot} ${currentStep === 'questions' ? styles.active : ''}`}>
             2
           </div>
           <span>Evaluación</span>
         </div>
-        <div className={styles.progressLine}></div>
-        <div className={styles.progressStep}>
-          <div className={`${styles.progressDot} ${currentStep === 'results' ? styles.active : ''}`}>
-            3
-          </div>
-          <span>Resultados</span>
-        </div>
       </div>
 
       <main className={styles.content}>
+        {isLoading && <p>Enviando formulario...</p>}
+        {error && <p style={{ color: 'red' }}>Error: {error.message}</p>}
         {getStepContent()}
       </main>
 
       <footer className={styles.footer}>
         <div className={styles.buttonGroup}>
-          {currentStep !== 'info' && (
+          {currentStep === 'questions' && (
             <button 
               onClick={handlePrevious}
               className={`${styles.button} ${styles.secondary}`}
+              disabled={isLoading}
             >
               Anterior
             </button>
@@ -306,14 +180,15 @@ const EdahForm = () => {
           <button 
             onClick={handleReset}
             className={`${styles.button} ${styles.danger}`}
+            disabled={isLoading}
           >
             Reiniciar
           </button>
           
-          {currentStep !== 'results' ? (
+          {currentStep === 'info' ? (
             <button 
               onClick={handleNext}
-              disabled={!canProceed()}
+              disabled={!canProceed() || isLoading}
               className={`${styles.button} ${styles.primary}`}
             >
               Siguiente
@@ -322,8 +197,9 @@ const EdahForm = () => {
             <button 
               onClick={handleSubmit}
               className={`${styles.button} ${styles.success}`}
+              disabled={isLoading}
             >
-              Generar Reporte
+              Enviar Formulario
             </button>
           )}
         </div>
