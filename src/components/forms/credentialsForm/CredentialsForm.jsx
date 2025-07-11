@@ -1,15 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import FormHeader from "../FormHeader/FormHeader";
 import Button from "../../ui/Button/Button";
 import Checkbox from "../../ui/Checkbox/Checkbox";
 import Input from "../../ui/Input/Input";
 import { useForm } from "../../../hooks/useForm";
-// import { 
-//   FORM_FIELDS, 
-//   VALIDATION_RULES, 
-//   INITIAL_VALUES, 
-//   handleFormSubmission 
-// } from "./CredentialsForm.logic";
+import { useEdahForm } from "../../../hooks/useEdahForm";
 
 import styles from "./CredentialsForm.module.css";
 
@@ -34,8 +30,8 @@ const VALIDATION_RULES = {
 // --- End of temporary constants ---
 
 const CredentialsForm = ({onClose}) => {
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submitMessage, setSubmitMessage] = useState('');
+    const navigate = useNavigate();
+    const { isLoading, error, validate } = useEdahForm();
 
     const {
         values,
@@ -50,24 +46,25 @@ const CredentialsForm = ({onClose}) => {
         e.preventDefault();
 
         if (!validateForm()) {
-            setSubmitMessage('Por favor, corrige los errores.');
             return;
         }
 
-        setIsSubmitting(true);
-        setSubmitMessage('Simulando validación...');
-        console.log("Form values submitted:", values);
+        const { testId, credential } = values;
 
-        // Mock submission logic
-        setTimeout(() => {
-            setSubmitMessage('¡Credenciales validadas correctamente! (simulado)');
-            setIsSubmitting(false);
-        }, 1500);
+        
+
+        const result = await validate(testId, credential);
+
+        if (result.isValid) {
+            navigate(`/edah-form?testId=${testId}`);
+        } else {
+            // Error handling is done by useEdahForm hook, but we can show a generic message here if needed
+            console.error("Validation failed:", error);
+        }
     };
 
     const handleReset = () => {
         resetForm();
-        setSubmitMessage('');
     };
 
     return (
@@ -117,24 +114,24 @@ const CredentialsForm = ({onClose}) => {
                     <Button
                         type="submit"
                         variant="primary"
-                        disabled={isSubmitting}
+                        disabled={isLoading}
                     >
-                        {isSubmitting ? 'Validando...' : 'Validar'}
+                        {isLoading ? 'Validando...' : 'Validar'}
                     </Button>
 
                     <Button
                         type="button"
                         variant="secondary"
                         onClick={handleReset}
-                        disabled={isSubmitting}
+                        disabled={isLoading}
                     >
                         Limpiar formulario
                     </Button>
                 </div>
 
-                {submitMessage && (
-                    <div className={`${styles.message} ${submitMessage.includes('Error') ? styles.error : styles.success}`}>
-                        {submitMessage}
+                {error && (
+                    <div className={`${styles.message} ${styles.error}`}>
+                        Error: {error.message}
                     </div>
                 )}
             </form>
