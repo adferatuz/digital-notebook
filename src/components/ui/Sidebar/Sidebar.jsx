@@ -2,16 +2,13 @@ import { useState } from 'react';
 import { sidebarConfig } from './sidebarConfig.jsx';
 import styles from './Sidebar.module.css';
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
-const Sidebar = ({ setActiveView }) => {
+const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
-  };
-
-  const handleItemClick = (view) => {
-    setActiveView(view);
   };
 
   return (
@@ -24,13 +21,13 @@ const Sidebar = ({ setActiveView }) => {
         <ul className={styles.sidebarMenu}>
           {sidebarConfig.map((item) => (
             <li key={item.id} className={styles.sidebarMenuItem}>
-              <button
+              <Link
+                to={item.path}
                 className={styles.sidebarLink}
-                onClick={() => handleItemClick(item.id)}
               >
                 <span className={styles.sidebarIcon}>{item.icon}</span>
                 {!isCollapsed && <span className={styles.sidebarText}>{item.label}</span>}
-              </button>
+              </Link>
             </li>
           ))}
         </ul>

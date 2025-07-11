@@ -44,3 +44,23 @@ export const submitEdahForm = async (formData) => {
 
   return { success: true, data };
 };
+
+/**
+ * Obtiene los resultados de la evaluación EDAH para un testId específico.
+ * Invoca una Edge Function de Supabase para obtener los datos.
+ *
+ * @param {string} testId - El ID de la prueba.
+ * @returns {Promise<{data: EdahFormResponse[] | null, error?: any}>} - Un objeto con los datos del formulario o un error.
+ */
+export const getEdahResultsByTestId = async (testId) => {
+  const { data, error } = await supabase.functions.invoke('get-edah-results', {
+    body: { testId },
+  });
+
+  if (error) {
+    console.error('Error fetching EDAH results:', error);
+    return { data: null, error };
+  }
+
+  return { data };
+};

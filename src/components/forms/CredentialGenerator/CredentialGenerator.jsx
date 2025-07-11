@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import styles from './CredentialGenerator.module.css';
+import { useTestSessions } from '../../../hooks/useTestSessions';
 
-const CredentialGenerator = ({ testSessions, isLoading, error, addTestSession }) => {
+const CredentialGenerator = () => {
+  const { testSessions, isLoading, error, addTestSession } = useTestSessions();
 
   const generateCredentials = async () => {
     const testId = `EDAH-${Date.now()}`;

@@ -1,0 +1,89 @@
+.container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: 'Arial', sans-serif;
+}
+
+.title {
+  color: #333;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.loading,
+.error,
+.noResults {
+  text-align: center;
+  padding: 20px;
+  font-size: 1.1em;
+  color: #555;
+}
+
+.error {
+  color: #d9534f;
+}
+
+.resultCard {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.cardTitle {
+  color: #007bff;
+  margin-top: 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.section {
+  margin-bottom: 15px;
+}
+
+.sectionTitle {
+  color: #555;
+  font-size: 1.1em;
+  margin-bottom: 10px;
+  border-left: 3px solid #007bff;
+  padding-left: 10px;
+}
+
+.section p {
+  margin: 5px 0;
+}
+
+.scoresGrid,
+.interpretationGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.scoreItem,
+.interpretationItem {
+  background-color: #e9ecef;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.scoreScale,
+.interpretationScale {
+  font-weight: bold;
+  color: #333;
+}
+
+.scoreValue {
+  font-size: 1.2em;
+  color: #007bff;
+}
+
+.interpretationText {
+  font-size: 0.9em;
+  color: #666;
+}
