@@ -21,7 +21,11 @@ function App() {
           <Route path="/edah-form" element={<EdahForm />} />
           <Route path="/dashboard" element={<Dashboard />}>
             <Route path="credentials-access" element={<CredentialsAccess />} />
-            <Route path="edah-results" element={<EdahResults />} />
+            {/* Ruta anidada para EdahResults */}
+            <Route path="edah-results">
+              <Route index element={<EdahResults />} />
+              <Route path=":testId" element={<EdahResults />} />
+            </Route>
             <Route path="generate-credentials" element={<CredentialGenerator />} />
           </Route>
           <Route path="*" element={<NotFound />} />

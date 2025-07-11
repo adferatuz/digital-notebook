@@ -51,14 +51,30 @@ const PatientInfoForm = ({ studentInfo, updateStudentInfo, testId }) => {
         </div>
         
         <div className={styles.inputGroup}>
-          <label className={styles.label}>Tutor a evaluar:</label>
+          <label className={styles.label}>Nombre del tutor/evaluador:</label>
           <input
             type="text"
-            value={studentInfo.evaluator}
-            onChange={(e) => updateStudentInfo('evaluator', e.target.value)}
+            value={studentInfo.evaluatorName}
+            onChange={(e) => updateStudentInfo('evaluatorName', e.target.value)}
             className={styles.input}
-            placeholder="Nombre del tutor/evaluador"
+            placeholder="Nombre de la persona que evalúa"
           />
+        </div>
+
+        <div className={styles.inputGroup}>
+          <label className={styles.label}>Parentesco o relación:</label>
+          <select
+            value={studentInfo.evaluatorRelationship}
+            onChange={(e) => updateStudentInfo('evaluatorRelationship', e.target.value)}
+            className={styles.input}
+          >
+            <option value="" disabled>Seleccione una opción</option>
+            <option value="Madre">Madre</option>
+            <option value="Padre">Padre</option>
+            <option value="Tutor Legal">Tutor Legal</option>
+            <option value="Profesor(a)">Profesor(a)</option>
+            <option value="Otro">Otro</option>
+          </select>
         </div>
         
         <div className={styles.inputGroup}>
