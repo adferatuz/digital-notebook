@@ -69,14 +69,14 @@ const ResultDetails = ({ testId }) => {
       setIsLoading(true);
       setError(null);
       try {
-        const { data, error } = await getEdahResultsByTestId(testId);
+        const { data: responseData, error } = await getEdahResultsByTestId(testId);
         if (error) {
           throw error;
         }
-        if (data.length === 0) {
+        if (responseData.data.length === 0) {
           throw new Error(`No se encontraron resultados para el ID: ${testId}`);
         }
-        setResults(data);
+        setResults(responseData.data);
       } catch (err) {
         setError(err);
       } finally {

@@ -53,7 +53,7 @@ export const submitEdahForm = async (formData) => {
  * @returns {Promise<{data: EdahFormResponse[] | null, error?: any}>} - Un objeto con los datos del formulario o un error.
  */
 export const getEdahResultsByTestId = async (testId) => {
-  const { data, error } = await supabase.functions.invoke('get-edah-results', {
+  const { data, error } = await supabase.functions.invoke('get-edah-results-by-id', {
     body: { testId },
   });
 
