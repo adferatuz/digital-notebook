@@ -18,10 +18,19 @@ function App() {
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/edah-form" element={<EdahForm />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/access-edah-form" element={<CredentialsAccess />} /> {/* Ruta para tutores */}
+          <Route path="/edah-form" element={<EdahForm />} /> {/* Ruta para el llenado del formulario EDAH */}
+
+          {/* Rutas del Dashboard (protegidas para administradores) */}
           <Route path="/dashboard" element={<Dashboard />}>
-            <Route path="credentials-access" element={<CredentialsAccess />} />
-            <Route path="edah-results" element={<EdahResults />} />
+            {/* Ruta anidada para EdahResults */}
+            <Route path="edah-results">
+              <Route index element={<EdahResults />} />
+              <Route path=":testId" element={<EdahResults />} />
+            </Route>
             <Route path="generate-credentials" element={<CredentialGenerator />} />
           </Route>
           <Route path="*" element={<NotFound />} />

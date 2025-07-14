@@ -39,7 +39,8 @@ export const useEdahForm = () => {
     name: '',
     age: '',
     grade: '',
-    evaluator: '',
+    evaluatorName: '', // Campo para el nombre del evaluador
+    evaluatorRelationship: '', // Campo para el parentesco
     date: new Date().toISOString().split('T')[0]
   });
 
@@ -111,9 +112,12 @@ export const useEdahForm = () => {
     const allQuestionsAnswered = Object.keys(edahQuestions).every(
       id => responses[id] !== undefined
     );
-    const studentInfoComplete = Object.values(studentInfo).every(
-      value => value.trim() !== ''
-    );
+    const studentInfoComplete = Object.entries(studentInfo).every(([key, value]) => {
+      // El campo de parentesco puede ser opcional si se elige "Otro", por ejemplo.
+      // Aquí nos aseguramos de que los campos clave no estén vacíos.
+      if (key === 'evaluatorRelationship' && value === '') return false; // Requerir selección
+      return value.toString().trim() !== '';
+    });
     return allQuestionsAnswered && studentInfoComplete;
   };
 
@@ -124,7 +128,8 @@ export const useEdahForm = () => {
       name: '',
       age: '',
       grade: '',
-      evaluator: '',
+      evaluatorName: '',
+      evaluatorRelationship: '',
       date: new Date().toISOString().split('T')[0]
     });
   };
@@ -141,7 +146,6 @@ export const useEdahForm = () => {
     let maxScale = '';
     let minScale = '';
 
-    // Exclude 'total' and 'H+DA' from min/max calculation if they are not primary scales
     const primaryScales = Object.keys(scoresWithoutTotal).filter(scale => scale !== 'H+DA');
 
     primaryScales.forEach(scale => {
@@ -156,9 +160,19 @@ export const useEdahForm = () => {
       }
     });
 
+    // Construir el objeto de información del estudiante para el reporte
+    const reportStudentInfo = {
+      ...studentInfo,
+      // Unir nombre y parentesco en un solo campo para el reporte
+      evaluator: `${studentInfo.evaluatorName} (${studentInfo.evaluatorRelationship})`
+    };
+    // Eliminar los campos individuales del objeto principal
+    delete reportStudentInfo.evaluatorName;
+    delete reportStudentInfo.evaluatorRelationship;
+
     return {
       testId,
-      studentInfo,
+      studentInfo: reportStudentInfo,
       responses,
       scores: scoresWithoutTotal,
       highestScoreScale: { scale: maxScale, score: maxScore },

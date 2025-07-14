@@ -21,19 +21,25 @@ Estamos trabajando en la rama `feat/edah-form-hook`.
 
 Hemos avanzado significativamente en la implementación del flujo del formulario EDAH y la vista de administración. La estructura base está establecida y los componentes principales están integrados.
 
+**Progreso en Edge Functions:**
+*   La función `get-edah-summaries` ha sido implementada, desplegada y conectada al frontend, permitiendo la visualización del historial de evaluaciones.
+*   La función `get-edah-results-by-id` ha sido implementada y desplegada, y ahora el frontend la consume para mostrar los resultados detallados de un paciente específico. Se resolvieron los problemas de CORS y el formato de datos.
+
+**Datos de Prueba:**
+*   Se han insertado datos de prueba directamente en la tabla `edah_forms` de Supabase para facilitar las pruebas de las funciones Edge.
+
 ## Plan de Acción para la Siguiente Sesión
 
-1.  **Implementar la lógica de obtención de datos en `EdahResults.jsx`:**
-    *   Actualmente, `EdahResults.jsx` solo muestra un esqueleto. Necesitamos implementar la lógica para llamar a `getEdahResultsByTestId` y renderizar los datos de manera significativa.
-    *   Considerar cómo se presentarán los resultados de múltiples tutores para el mismo `testId`.
-2.  **Configurar las Edge Functions de Supabase:**
-    *   Asegurarse de que las Edge Functions `validate-credential`, `submit-edah-form` y `get-edah-results` estén correctamente implementadas y desplegadas en Supabase para que la aplicación pueda interactuar con la base de datos.
-3.  **Implementar la generación de credenciales en `CredentialGenerator.jsx`:**
+1.  **Configurar y Desplegar las Edge Functions restantes de Supabase:**
+    *   `validate-credential`: Para el acceso al formulario EDAH.
+    *   `submit-edah-form`: Para enviar los datos del formulario EDAH a la base de datos.
+    *   `add-test-session` (o similar): Para la generación de credenciales en `CredentialGenerator.jsx`.
+2.  **Implementar la generación de credenciales en `CredentialGenerator.jsx`:**
     *   Asegurarse de que la función `addTestSession` en `useTestSessions` y el servicio subyacente (`testSessionService.js`) estén correctamente implementados para guardar las credenciales generadas en Supabase.
-4.  **Revisión y Pruebas End-to-End:**
+3.  **Revisión y Pruebas End-to-End:**
     *   Realizar pruebas exhaustivas de todo el flujo: generación de credenciales, acceso al formulario, llenado y envío del formulario, y visualización de resultados en el panel de administración.
     *   Verificar la correcta persistencia de los datos en Supabase.
-5.  **Configuración de Row Level Security (RLS) en Supabase:**
+4.  **Configuración de Row Level Security (RLS) en Supabase:**
     *   Una vez que la funcionalidad básica esté probada, implementar las políticas de RLS adecuadas en la tabla `edah_forms` (y cualquier otra tabla relevante) para asegurar la protección de los datos.
 
 ## Convenciones Clave

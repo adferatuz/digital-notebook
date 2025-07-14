@@ -4,7 +4,7 @@ import styles from './Navigation.module.css';
 const Navigation = ({ currentPath }) => {
   const navItems = [
     { path: '/', label: 'Inicio' },
-    { path: '/credentials-access', label: 'Acceder a la prueba' },
+    { path: '/access-edah-form', label: 'Acceder a la prueba' },
     { path: '/login', label: 'Login' },
   ];
 

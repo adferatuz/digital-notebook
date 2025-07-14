@@ -13,7 +13,7 @@ const Home = () => {
           Gestiona tus cuadernos digitales de forma fácil y eficiente
         </p>
         <div className={styles.actions}>
-          <Link to="/credentials-access">
+          <Link to="/access-edah-form">
             <Button variant="primary" size="large">
               Presentar prueba
             </Button>

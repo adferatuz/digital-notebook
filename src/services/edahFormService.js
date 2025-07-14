@@ -53,12 +53,29 @@ export const submitEdahForm = async (formData) => {
  * @returns {Promise<{data: EdahFormResponse[] | null, error?: any}>} - Un objeto con los datos del formulario o un error.
  */
 export const getEdahResultsByTestId = async (testId) => {
-  const { data, error } = await supabase.functions.invoke('get-edah-results', {
+  const { data, error } = await supabase.functions.invoke('get-edah-results-by-id', {
     body: { testId },
   });
 
   if (error) {
     console.error('Error fetching EDAH results:', error);
+    return { data: null, error };
+  }
+
+  return { data };
+};
+
+/**
+ * Obtiene un resumen de todos los formularios EDAH.
+ * Invoca la Edge Function 'get-edah-summaries'.
+ *
+ * @returns {Promise<{data: Array<{test_id: string, student_name: string, last_evaluation_date: string, evaluators_count: number}> | null, error?: any}>} - Un objeto con los datos resumidos o un error.
+ */
+export const getEdahSummaries = async () => {
+  const { data, error } = await supabase.functions.invoke('get-edah-summaries');
+
+  if (error) {
+    console.error('Error fetching EDAH summaries:', error);
     return { data: null, error };
   }
 
